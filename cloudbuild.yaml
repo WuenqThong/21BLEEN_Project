@@ -1,13 +1,59 @@
 steps:
-  # Build the Docker image
+  # Step 1: Install dependencies
+  - name: 'node:18'
+    entrypoint: 'npm'
+    args: ['ci']
+    dir: '.'
+
+  # Step 2: Build React frontend
+  - name: 'node:18'
+    entrypoint: 'npm'
+    args: ['run', 'build']
+    dir: '.'
+
+  # Step 3: Create Dockerfile for production
   - name: 'gcr.io/cloud-builders/docker'
-    args: ['build', '-t', 'gcr.io/$PROJECT_ID/bleen-app:$COMMIT_SHA', '.']
-  
-  # Push the Docker image to Container Registry
+    args: ['build', '-t', 'gcr.io/$PROJECT_ID/bleen-app:$COMMIT_SHA', '-f', '-', '.']
+    entrypoint: 'bash'
+    script: |
+      cat > Dockerfile << 'EOF'
+      FROM node:18-alpine
+      
+      # Set working directory
+      WORKDIR /app
+      
+      # Copy package files
+      COPY package*.json ./
+      
+      # Install production dependencies only
+      RUN npm ci --only=production && npm cache clean --force
+      
+      # Copy built frontend
+      COPY dist ./dist
+      
+      # Copy server files
+      COPY server2.js ./
+      COPY index.js ./
+      
+      # Create uploads directory
+      RUN mkdir -p uploads
+      
+      # Expose port
+      EXPOSE 3001
+      
+      # Set environment variables
+      ENV NODE_ENV=production
+      ENV PORT=3001
+      
+      # Start the application
+      CMD ["node", "server2.js"]
+      EOF
+
+  # Step 4: Push image to Container Registry
   - name: 'gcr.io/cloud-builders/docker'
     args: ['push', 'gcr.io/$PROJECT_ID/bleen-app:$COMMIT_SHA']
-  
-  # Deploy to Cloud Run
+
+  # Step 5: Deploy to Cloud Run
   - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
     entrypoint: 'gcloud'
     args:
@@ -22,7 +68,7 @@ steps:
       - 'managed'
       - '--allow-unauthenticated'
       - '--port'
-      - '3000'
+      - '3001'
       - '--memory'
       - '1Gi'
       - '--cpu'
