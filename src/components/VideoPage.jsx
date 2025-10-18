@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { toast } from 'react-toastify';
 import { apiCall } from '../utils/api';
@@ -10,6 +10,7 @@ import logoImage from '../images/Video Page/source_2.png';
 function VideoPage() {
   const { userId } = useParams();
   const { token } = useAuth();
+  const navigate = useNavigate();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [video, setVideo] = useState(null);
   const [showPlayButton, setShowPlayButton] = useState(true);
@@ -259,7 +260,7 @@ function VideoPage() {
                     Chưa có video nào
                   </p>
                   <button
-                    onClick={() => window.location.href = `/${userId}/settings`}
+                    onClick={() => navigate(`/${userId}/settings`)}
                     className="bg-primary-teal text-white font-body px-6 py-2 rounded-full hover:bg-accent-green transition-colors"
                   >
                     Tải video lên

@@ -4,8 +4,8 @@ const fs = require('fs');
 
 const app = express();
 
-// Phục vụ các file tĩnh từ thư mục hiện tại
-app.use(express.static(__dirname));
+// Phục vụ các file tĩnh từ thư mục dist (built files)
+app.use(express.static(path.join(__dirname, 'dist')));
 
 // Xử lý route cho trang dashboard
 app.get('/:userId', (req, res, next) => {
@@ -15,7 +15,7 @@ app.get('/:userId', (req, res, next) => {
     }
     
     // Serve React app cho user routes
-    const filePath = path.join(__dirname, 'index.html');
+    const filePath = path.join(__dirname, 'dist', 'index.html');
     res.sendFile(filePath);
 });
 
@@ -27,7 +27,7 @@ app.get('*', (req, res, next) => {
     }
     
     // Serve React app cho các route khác
-    const filePath = path.join(__dirname, 'index.html');
+    const filePath = path.join(__dirname, 'dist', 'index.html');
     res.sendFile(filePath);
 });
 

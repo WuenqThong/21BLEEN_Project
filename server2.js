@@ -27,6 +27,55 @@ app.use(express.json());
 // Parse URL-encoded bodies
 app.use(express.urlencoded({ extended: true }));
 
+// Special middleware to handle JavaScript files with correct MIME type
+app.use('/assets', (req, res, next) => {
+  if (req.path.endsWith('.js') || req.path.endsWith('.mjs')) {
+    res.setHeader('Content-Type', 'application/javascript; charset=utf-8');
+  }
+  next();
+});
+
+// Serve static files from the dist directory with proper MIME types
+app.use(express.static(path.join(__dirname, 'dist'), {
+  setHeaders: (res, filePath) => {
+    // Force correct MIME types for JavaScript files
+    if (filePath.endsWith('.js') || filePath.endsWith('.mjs')) {
+      res.setHeader('Content-Type', 'application/javascript; charset=utf-8');
+    }
+    // Set correct MIME types for CSS files
+    if (filePath.endsWith('.css')) {
+      res.setHeader('Content-Type', 'text/css; charset=utf-8');
+    }
+    // Set correct MIME types for JSON files
+    if (filePath.endsWith('.json')) {
+      res.setHeader('Content-Type', 'application/json; charset=utf-8');
+    }
+    // Set correct MIME types for SVG files
+    if (filePath.endsWith('.svg')) {
+      res.setHeader('Content-Type', 'image/svg+xml; charset=utf-8');
+    }
+    // Set correct MIME types for other assets
+    if (filePath.endsWith('.png')) {
+      res.setHeader('Content-Type', 'image/png');
+    }
+    if (filePath.endsWith('.jpg') || filePath.endsWith('.jpeg')) {
+      res.setHeader('Content-Type', 'image/jpeg');
+    }
+    if (filePath.endsWith('.gif')) {
+      res.setHeader('Content-Type', 'image/gif');
+    }
+    if (filePath.endsWith('.webp')) {
+      res.setHeader('Content-Type', 'image/webp');
+    }
+    if (filePath.endsWith('.ico')) {
+      res.setHeader('Content-Type', 'image/x-icon');
+    }
+    if (filePath.endsWith('.mp4')) {
+      res.setHeader('Content-Type', 'video/mp4');
+    }
+  }
+}));
+
 // =============================================================================
 // ENVIRONMENT VALIDATION
 // =============================================================================
@@ -2367,10 +2416,15 @@ const startServer = (port) => {
     console.log(`     -F "image=@photo.jpg" -F "userId=user_123456789_123" -F "position=1" \\`);
     console.log(`     http://localhost:${port}/api/upload`);
     
-    console.log(`\n=============================\n`);
-  });
+  console.log(`\n=============================\n`);
+});
 
-  server.on('error', (err) => {
+// Serve React app for all non-API routes
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, 'dist', 'index.html'));
+});
+
+server.on('error', (err) => {
     if (err.code === 'EADDRINUSE') {
       console.log(`❌ Port ${port} đang được sử dụng, thử port ${port + 1}...`);
       startServer(port + 1);

@@ -66,8 +66,8 @@ const AppRoutes = () => {
         </PublicRoute>
       } />
       
-      {/* Default userId route - always show UnlockPage */}
-      <Route path="/:userId" element={<UnlockPage />} />
+      {/* Default userId route - show HomePage first */}
+      <Route path="/:userId" element={<HomePage />} />
       
       {/* Protected routes */}
       <Route path="/:userId/home" element={

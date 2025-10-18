@@ -34,9 +34,18 @@ export default defineConfig({
     // Increase chunk size warning limit
     chunkSizeWarningLimit: 1000,
     // Better source maps
-    sourcemap: true,
-    // Disable minification for debugging
-    minify: false
+    sourcemap: false,
+    // Enable minification for production
+    minify: 'terser',
+    // Ensure proper module format
+    rollupOptions: {
+      output: {
+        format: 'es',
+        entryFileNames: 'assets/[name]-[hash].js',
+        chunkFileNames: 'assets/[name]-[hash].js',
+        assetFileNames: 'assets/[name]-[hash].[ext]'
+      }
+    }
   },
   // Add base URL if needed
   base: '/',
