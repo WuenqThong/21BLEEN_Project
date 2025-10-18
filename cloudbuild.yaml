@@ -47,3 +47,8 @@ steps:
 # Store images in Container Registry
 images:
   - 'gcr.io/$PROJECT_ID/bleen-app:latest'
+
+# Build options for logging
+options:
+  logging: CLOUD_LOGGING_ONLY
+  default_logs_bucket_behavior: REGIONAL_USER_OWNED_BUCKET
